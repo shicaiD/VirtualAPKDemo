@@ -33,22 +33,19 @@ color、string等都是这样。<br><br>
     } 
     ```
     我不想每次都退出应用杀死进程来重新加载插件啊。。没办法，只有自己动手写了个反射来实现了。<br>
-    ``` 
-    mPluginManager = PluginManager.getInstance(base);
-    mPluginManager.init();
-    Class cls = mPluginManager.getClass();
-    mPluginsField = cls.getDeclaredField("mPlugins");
-    ...
-    ...
-    public void deletePlugin(String packageName){
-      if(mPluginsField != null) {
-        mPluginsField.setAccessible(true);
-          try {
-              ConcurrentHashMap mPlugin = (ConcurrentHashMap) mPluginsField.get(mPluginManager);
-              mPlugin.remove(packageName);
-          } catch (IllegalAccessException e) {
-              e.printStackTrace();
-          }
-       }
-      }
-      ```
+```
+//virtualapk初始化
+mPluginManager = PluginManager.getInstance(base);
+mPluginManager.init();
+//反射得到mPlugins域
+Class cls = mPluginManager.getClass();
+mPluginsField = cls.getDeclaredField("mPlugins");
+...
+...
+mPluginsField.setAccessible(true);
+ConcurrentHashMap mPlugin = (ConcurrentHashMap) mPluginsField.get(mPluginManager);
+mPlugin.remove(packageName);
+```
+        这里revmove掉后，下载加载就会覆盖原来的dex了。<br>
+        
+        That's all.
